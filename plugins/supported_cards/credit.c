@@ -10,8 +10,8 @@
 #define KEY_LENGTH 6
 #define UID_LENGTH 4
 
-#define WATER_BLOCK_ID 0x3A
-#define WATER_BLOCK_SECTOR 14
+#define MONEY_BLOCK_ID 0x3A
+#define MONEY_BLOCK_SECTOR 14
 #define KEY_BLOCK_ID 0x3B
 #define KEY_BLOCK_SECTOR 14
 
@@ -156,13 +156,13 @@ static bool credit_read(Nfc *nfc, NfcDevice *device)
         DEBUGF(TAG, "Key generated for UID: %012llX", num_key);
 
         uint8_t sectors = mf_classic_get_total_sectors_num(data->type);
-        if (sectors < WATER_BLOCK_SECTOR)
+        if (sectors < MONEY_BLOCK_SECTOR)
         {
             INFOF(TAG, "Card is not hot water card, the total sectors is %d", sectors);
             is_read = false;
             break;
         }
-        credit_1k_keys[WATER_BLOCK_SECTOR].a = num_key;
+        credit_1k_keys[MONEY_BLOCK_SECTOR].a = num_key;
 
         MfClassicDeviceKeys keys = refactor_MfClassicKeyPair_to_MfClassicDeviceKeys(credit_1k_keys, sectors);
 
@@ -225,7 +225,7 @@ static bool credit_parse(const NfcDevice *device, FuriString *parsed_data)
         }
 
         // Read block of money
-        MfClassicBlock money_raw = data->block[WATER_BLOCK_ID];
+        MfClassicBlock money_raw = data->block[MONEY_BLOCK_ID];
         uint64_t money = nfc_util_bytes2num_little_endian(money_raw.data, 2);
         DEBUGF(TAG, "Money: %012llX", money);
         DEBUGF(TAG, "Size: uint64_t: %d, double: %d", sizeof(uint64_t), sizeof(double));
@@ -285,10 +285,10 @@ static bool credit_verify(Nfc *nfc)
         uint64_t numx = nfc_util_bytes2num(keya, KEY_LENGTH);
         nfc_util_num2bytes(numx, KEY_LENGTH, key.data);
 
-        error = mf_classic_poller_sync_read_block(nfc, WATER_BLOCK_ID, &key, type, &data_block);
+        error = mf_classic_poller_sync_read_block(nfc, MONEY_BLOCK_ID, &key, type, &data_block);
         if (error != MfClassicErrorNone)
         {
-            INFOF(TAG, "Failed to read block %d", WATER_BLOCK_ID);
+            INFOF(TAG, "Failed to read block %d", MONEY_BLOCK_ID);
             break;
         }
         is_verified = true;
