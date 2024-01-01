@@ -1,0 +1,39 @@
+name: Build All Firmware Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v2
+
+        - name: Build For Official Firmware
+          run: |
+            make build FIRMWARE_DEFAULT_GIT_REPO="https://github.com/flipperdevices/flipperzero-firmware.git"
+            zip -r official-firmware.zip ./build
+            echo "Official Firmware Version: $(make firmware-info)" >> firmware_version.txt
+            make firmware-clean
+            make clean
+
+        - name: Build Unleash Firmware
+          run: |
+            make build FIRMWARE_DEFAULT_GIT_REPO="https://github.com/DarkFlippers/unleashed-firmware.git"
+            zip -r unleash-firmware.zip ./build
+            echo "Unleash Firmware Version: $(make firmware-info)" >> firmware_version.txt
+            make firmware-clean
+            make clean
+
+        - name: Create Release
+          uses: softprops/action-gh-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            body_path: ${{ github.workspace }}/firmware_version.txt
+            files: |
+              ${{ github.workspace }}/unleash-firmware.zip
+              ${{ github.workspace }}/official-firmware.zip

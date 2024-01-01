@@ -1,0 +1,10 @@
+# KDF parser plugins
+
+App(
+    appid="credit_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="credit_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/credit.c"],
+)

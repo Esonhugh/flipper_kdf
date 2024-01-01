@@ -1,0 +1,26 @@
+name: Build For test
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Build fal
+      run: |
+        make build
+    
+    - name: Watch Artifacts
+      run: |
+        ls -al
+        ls -al ./build
+        file ./build/*
+        
+    - name: Cleanup
+      run: |
+        make clean
