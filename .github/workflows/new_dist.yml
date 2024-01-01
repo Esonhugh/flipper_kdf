@@ -2,7 +2,7 @@ name: Build For test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ Skyworship ]
 
 jobs:
   build:
